@@ -33,7 +33,8 @@ setup(
         "pandas>=0.24.2",
         "numpy>=1.16.3",
         "kubernetes >= 9.0.0",
-        "pillow==6.2.0"
+        "pillow==6.2.0",
+        "hsfs==1.4.0"
     ],
     tests_require=tests_require,
     extras_require={'test': tests_require}
