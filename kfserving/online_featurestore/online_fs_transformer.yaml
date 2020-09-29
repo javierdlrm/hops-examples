@@ -1,0 +1,30 @@
+apiVersion: serving.kubeflow.org/v1alpha2
+kind: InferenceService
+metadata:
+  name: team-renovation
+spec:
+  default:
+    predictor:
+      sklearn:
+        storageUri: "gs://kfserving-samples/models/sklearn/iris"
+    transformer:
+      custom:
+        container:
+          image: javierdlrm/kfserving-hsfs-transformer:latest
+          name: user-container
+          env:
+            - name: HOST
+              value: ""
+            - name: PORT
+              value: ""
+            - name: PROJECT
+              value: ""
+            - name: API_KEY
+              value: ""
+          resources:
+            limits:
+              cpu: 100m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 1Gi
