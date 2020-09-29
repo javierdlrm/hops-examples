@@ -6,10 +6,10 @@ import hsfs
 
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 
-HOST = "HOST"
-PORT = "PORT"
-PROJECT = "PROJECT"
-API_KEY = "API_KEY"
+HOST = "FS_HOST"
+PORT = "FS_PORT"
+PROJECT = "FS_PROJECT"
+API_KEY = "FS_API_KEY"
 SECRETS_LOCAL = "local"
 
 def get_feature_vectors(fs, instances):

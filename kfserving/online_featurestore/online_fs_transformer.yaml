@@ -13,13 +13,13 @@ spec:
           image: javierdlrm/kfserving-hsfs-transformer:latest
           name: user-container
           env:
-            - name: HOST
+            - name: FS_HOST
               value: ""
-            - name: PORT
+            - name: FS_PORT
               value: ""
-            - name: PROJECT
+            - name: FS_PROJECT
               value: ""
-            - name: API_KEY
+            - name: FS_API_KEY
               value: ""
           resources:
             limits:
