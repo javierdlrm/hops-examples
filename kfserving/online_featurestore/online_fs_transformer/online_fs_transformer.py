@@ -61,8 +61,8 @@ class OnlineFSTransformer(kfserving.KFModel):
         self.fs = get_feature_store_connector(self.fs_config)
 
     def preprocess(self, inputs: Dict) -> Dict:
-        logging.info("Getting feature vectors for Teams [" + [i.team_id for i in inputs['instances']].join(', ') + "] ...")
-        return {'instances': get_feature_vectors(self.fs, inputs['instances']) }
+        logging.info("Getting feature vectors for Teams [" + [i['team_id'] for i in inputs['instances']].join(', ') + "] ...")
+        return {'instances': get_feature_vectors(self.fs, inputs['instances'])}
 
     def postprocess(self, inputs: List) -> List:
         return inputs
