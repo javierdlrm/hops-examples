@@ -22,14 +22,14 @@ def get_feature_vectors(fs, instances):
     logging.info("-------------------------------")
 
     logging.info("Getting team ids")
-    team_ids = [instance['team_id'] for instance in instances]
+    team_ids = [str(instance['team_id']) for instance in instances]
 
     logging.info("Getting features")
     features_df = fs.sql("""SELECT t_fg.team_position, t_fg.team_budget, p_fg.average_player_rating, p_fg.average_player_worth, p_fg.average_player_age
                             FROM `teams_features_1` t_fg
                             LEFT JOIN `players_features_1` p_fg
                             ON t_fg.team_id = p_fg.team_id
-                            WHERE t_fg.team_id IN (""" + ','.join([str(id) for id in team_ids) + ")")
+                            WHERE t_fg.team_id IN (""" + ','.join(team_ids) + ")")
 
     logging.info("Map to feature vectors")
     logging.info("Feature vectors:")
@@ -56,6 +56,7 @@ class OnlineFSTransformer(kfserving.KFModel):
 
     def __init__(self, name: str, predictor_host: str):
         super().__init__(name)
+        logging.info(f"OnlineFSTransformer: Name {name} - Predictor {predictor_host}")
         self.predictor_host = predictor_host
         self.fs_config = OnlineFSConfig()
         self.fs = get_feature_store_connector(self.fs_config)
