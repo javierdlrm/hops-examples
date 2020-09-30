@@ -49,11 +49,11 @@ def get_feature_vectors(fs, instances):
 
 def get_feature_store_config():
     return {
-        "host": os.environ(HOST),
-        "port": os.environ(PORT),
-        "project": os.environ(PROJECT),
+        "host": os.environ[HOST],
+        "port": os.environ[PORT],
+        "project": os.environ[PROJECT],
         "secrets_store": SECRETS_LOCAL,
-        "api_key_value": os.environ(API_KEY)
+        "api_key_value": os.environ[API_KEY]
     }
 
 
