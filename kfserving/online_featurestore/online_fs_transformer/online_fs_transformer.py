@@ -29,7 +29,7 @@ def get_feature_vectors(fs, instances):
                             FROM `teams_features_1` t_fg
                             LEFT JOIN `players_features_1` p_fg
                             ON t_fg.team_id = p_fg.team_id
-                            WHERE t_fg.team_id IN (""" + team_ids.join(",") + ")")
+                            WHERE t_fg.team_id IN (""" + ','.join([str(id) for id in team_ids) + ")")
 
     logging.info("Map to feature vectors")
     logging.info("Feature vectors:")
@@ -61,7 +61,7 @@ class OnlineFSTransformer(kfserving.KFModel):
         self.fs = get_feature_store_connector(self.fs_config)
 
     def preprocess(self, inputs: Dict) -> Dict:
-        logging.info("Getting feature vectors for Teams [" + ','.join([i['team_id'] for i in inputs['instances']]) + "] ...")
+        logging.info("Getting feature vectors for Teams [" + ','.join([str(i['team_id']) for i in inputs['instances']]) + "] ...")
         return {'instances': get_feature_vectors(self.fs, inputs['instances'])}
 
     def postprocess(self, inputs: List) -> List:
