@@ -1,16 +1,10 @@
-import os
 import logging
 from typing import List, Dict
 import kfserving
 import hsfs
+from .online_fs_config import OnlineFSConfig
 
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
-
-HOST = "FS_HOST"
-PORT = "FS_PORT"
-PROJECT = "FS_PROJECT"
-API_KEY = "FS_API_KEY"
-SECRETS_LOCAL = "local"
 
 
 def get_feature_vectors(fs, instances):
@@ -42,27 +36,18 @@ def get_feature_vectors(fs, instances):
     for fv in features_df.to_numpy():
         logging.info(fv)
 
-    return [[6.8, 2.8, 4.8, 1.4], [6.0, 3.4, 4.5, 1.6]]  # fake input for flower iris model
-
-
-def get_feature_store_config():
-    return {
-        "host": os.environ[HOST],
-        "port": os.environ[PORT],
-        "project": os.environ[PROJECT],
-        "secrets_store": SECRETS_LOCAL,
-        "api_key_value": os.environ[API_KEY]
-    }
+    # fake input for flower iris model
+    return [[6.8, 2.8, 4.8, 1.4], [6.0, 3.4, 4.5, 1.6]]
 
 
 def get_feature_store_connector(config):
-    logging.info("Connecting to Online FS...")
+    logging.info(f"Connecting to Online FS: host-{config.host}, port-{config.port}, project-{config.project}")
     conn = hsfs.connection(
         host=config.host,
         port=config.port,
         project=config.project,
         secrets_store=config.secrets_store,
-        api_key_value=config.api_key_value)
+        api_key_value=config.api_key)
 
     return conn.get_feature_store()
 
@@ -72,7 +57,7 @@ class OnlineFSTransformer(kfserving.KFModel):
     def __init__(self, name: str, predictor_host: str):
         super().__init__(name)
         self.predictor_host = predictor_host
-        self.fs_config = get_feature_store_config()
+        self.fs_config = OnlineFSConfig()
         self.fs = get_feature_store_connector(self.fs_config)
 
     def preprocess(self, inputs: Dict) -> Dict:
