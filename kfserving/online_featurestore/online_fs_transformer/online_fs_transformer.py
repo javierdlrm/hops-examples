@@ -9,7 +9,7 @@ from .online_fs_config import OnlineFSConfig
 logging.basicConfig(level=kfserving.constants.KFSERVING_LOGLEVEL)
 
 
-def get_feature_vectors(fs, instances):
+def get_feature_vectors(fs, instances, storage):
 
     team_ids = [str(instance['team_id']) for instance in instances]
     logging.info("Getting feature vectors for teams" + ', '.join(team_ids))
@@ -25,7 +25,7 @@ def get_feature_vectors(fs, instances):
                             ON t_fg.team_id = p_fg.team_id
                             WHERE t_fg.team_id IN (""" + ','.join(team_ids) + ")",
                          dataframe_type="pandas",
-                         storage="online")
+                         storage=storage)
     logging.info(f"-- {time.perf_counter() - start}")
 
     # Multiple sql queries sequentially
@@ -38,12 +38,12 @@ def get_feature_vectors(fs, instances):
                          FROM `teams_features_1` t_fg
                          WHERE t_fg.team_id IN (""" + ','.join(team_ids) + ")",
                       dataframe_type="pandas",
-                      storage="online")
+                      storage=storage)
     players_df = fs.sql("""SELECT p_fg.team_id, p_fg.average_player_rating, p_fg.average_player_worth, p_fg.average_player_age
                          FROM `players_features_1` p_fg
                          WHERE p_fg.team_id IN (""" + ','.join(team_ids) + ")",
                         dataframe_type="pandas",
-                        storage="online")
+                        storage=storage)
     features_df = teams_df.join(players_df.set_index('p_fg.team_id'), on='t_fg.team_id')
     features_df = features_df.drop(columns=['t_fg.team_id'])
 
@@ -56,7 +56,7 @@ def get_feature_vectors(fs, instances):
     start = time.perf_counter()
 
     def get_features(fs, query, queue):
-        queue.put(fs.sql(query, dataframe_type="pandas", storage="online"))
+        queue.put(fs.sql(query, dataframe_type="pandas", storage=storage))
 
     queue = Queue()
     procs = []
@@ -112,7 +112,7 @@ class OnlineFSTransformer(kfserving.KFModel):
         self.fs = get_feature_store_connector(self.fs_config)
 
     def preprocess(self, inputs: Dict) -> Dict:
-        feature_vectors = get_feature_vectors(self.fs, inputs['instances'])
+        feature_vectors = get_feature_vectors(self.fs, inputs['instances'], self.fs_config.storage)
         return {'instances': feature_vectors}
 
     def postprocess(self, inputs: List) -> List:
